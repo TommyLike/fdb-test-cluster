@@ -42,9 +42,9 @@ variable "key_name" {
 variable "aws_access_key" {}
 variable "aws_secret_key" {}
 variable "aws_region" {
-  default = "eu-west-1"
+  default = "ap-northeast-1"
   description = "AWS region to launch servers."
 }
 variable "aws_availability_zone" {
-  default = "eu-west-1b"
+  default = "ap-northeast-1a"
 }

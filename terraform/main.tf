@@ -101,11 +101,11 @@ resource "aws_key_pair" "auth" {
 
 # Random cluster identifier strings
 resource "random_string" "cluster_description" {
-  length = 8
+  length = 11
   special = false
 }
 resource "random_string" "cluster_id" {
-  length = 8
+  length = 11
   special = false
 }
 
@@ -154,6 +154,11 @@ resource "aws_instance" "fdb" {
   tags {
     Name = "${format("fdb-%02d", count.index + 1)}"
     Project = "TF:poma"
+  }
+
+  root_block_device {
+    volume_type = "gp2",
+    volume_size = 500,
   }
 
   provisioner "file" {
@@ -213,6 +218,12 @@ resource "aws_instance" "tester" {
     Name = "${format("fdb-tester-%02d", count.index + 1)}"
     Project = "TF:poma"
   }
+
+  root_block_device {
+    volume_type = "gp2",
+    volume_size = 500,
+  }
+
 
   provisioner "file" {
     source      = "init.sh"

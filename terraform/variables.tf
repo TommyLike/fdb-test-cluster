@@ -3,15 +3,15 @@
 # instance store options: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/InstanceStorage.html
 # m5d.2xlarge - will use local NVMe SSD
 variable "aws_fdb_size" {
-  default = "m5d.2xlarge"
+  default = "m5d.xlarge"
   description = "machine type to run FoundationDB servers"
 }
 variable "fdb_procs_per_machine" {
-  default = 8
+  default = 4
   description = "number of FDB processes per machine"
 }
 variable "aws_fdb_count" {
-  default = 8
+  default = 11
   description = "Number of machines in a cluster"
 }
 variable "aws_tester_count" {

@@ -11,17 +11,17 @@ variable "fdb_procs_per_machine" {
   description = "number of FDB processes per machine"
 }
 variable "aws_fdb_count" {
-  default = 11
+  default = 14
   description = "Number of machines in a cluster"
 }
 variable "aws_tester_count" {
   # make sure there are enough testers so that they 
   # are not saturated (cpu < 100%) to get accurate results
-  default = 4
+  default = 6
   description = "Number of tester machines in a cluster"
 }
 variable "fdb_init_string" {
-  default = "configure new ssd double proxies=4 resolvers=2 logs=2"
+  default = "configure new ssd double proxies=7 resolvers=3 logs=12"
   description = "FDB initialization string"
 }
 

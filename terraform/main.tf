@@ -101,11 +101,11 @@ resource "aws_key_pair" "auth" {
 
 # Random cluster identifier strings
 resource "random_string" "cluster_description" {
-  length = 11
+  length = 14
   special = false
 }
 resource "random_string" "cluster_id" {
-  length = 11
+  length = 14
   special = false
 }
 
@@ -157,9 +157,12 @@ resource "aws_instance" "fdb" {
   }
 
   root_block_device {
-    volume_type = "gp2",
-    volume_size = 500,
+    volume_type = "io1",
+    volume_size = 1000,
+    iops = 14000
   }
+
+  ebs_optimized = true,
 
   provisioner "file" {
     source      = "init.sh"
@@ -221,9 +224,10 @@ resource "aws_instance" "tester" {
 
   root_block_device {
     volume_type = "gp2",
-    volume_size = 500,
+    volume_size = 1000
   }
 
+  ebs_optimized = true,
 
   provisioner "file" {
     source      = "init.sh"

@@ -38,11 +38,19 @@ case $VM_TYPE in
     mkdir -p /var/lib/foundationdb/data
     chown -R foundationdb:foundationdb /var/lib/foundationdb
     ;;
-"i3.large" | "m5d.2xlarge")
+"i3.large" | "m5d.xlarge" | "m5d.2xlarge")
     echo SSD optimized
     mkfs.ext4 -E nodiscard /dev/nvme1n1
     # ext4 filesystems should be mounted with mount options default,noatime,discard
     mount /dev/nvme1n1 /var/lib/foundationdb
+    mkdir -p /var/lib/foundationdb/data
+    chown -R foundationdb:foundationdb /var/lib/foundationdb
+    ;;
+"i3.xlarge" )
+    echo SSD optimized
+    mkfs.ext4 -E nodiscard /dev/nvme0n1
+    # ext4 filesystems should be mounted with mount options default,noatime,discard
+    mount /dev/nvme0n1 /var/lib/foundationdb
     mkdir -p /var/lib/foundationdb/data
     chown -R foundationdb:foundationdb /var/lib/foundationdb
     ;;

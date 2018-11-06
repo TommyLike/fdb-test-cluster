@@ -156,14 +156,6 @@ resource "aws_instance" "fdb" {
     Project = "TF:poma"
   }
 
-  root_block_device {
-    volume_type = "io1",
-    volume_size = 1000,
-    iops = 14000
-  }
-
-  ebs_optimized = true,
-
   provisioner "file" {
     source      = "init.sh"
     destination = "/tmp/init.sh"
@@ -221,13 +213,6 @@ resource "aws_instance" "tester" {
     Name = "${format("fdb-tester-%02d", count.index + 1)}"
     Project = "TF:poma"
   }
-
-  root_block_device {
-    volume_type = "gp2",
-    volume_size = 1000
-  }
-
-  ebs_optimized = true,
 
   provisioner "file" {
     source      = "init.sh"

@@ -3,7 +3,7 @@
 # About
 
 The purpose of this project is to make it easy to run various load
-tests on systems with FoundationDB in the cloud.
+tests on systems with FoundationDB in the cloud. Also we provide a way to monitor the cluster within InfluxDB and Grafana
 
 We can achieve that by:
 

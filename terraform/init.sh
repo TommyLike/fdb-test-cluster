@@ -38,13 +38,49 @@ case $VM_TYPE in
     mkdir -p /var/lib/foundationdb/data
     chown -R foundationdb:foundationdb /var/lib/foundationdb
     ;;
-"i3.large" | "m5d.2xlarge")
+"i3.large" | "m5d.xlarge" | "m5d.2xlarge")
     echo SSD optimized
     mkfs.ext4 -E nodiscard /dev/nvme1n1
     # ext4 filesystems should be mounted with mount options default,noatime,discard
     mount /dev/nvme1n1 /var/lib/foundationdb
     mkdir -p /var/lib/foundationdb/data
     chown -R foundationdb:foundationdb /var/lib/foundationdb
+    ;;
+"i3.xlarge" )
+    echo SSD optimized
+    mkfs.ext4 -E nodiscard /dev/nvme0n1
+    # ext4 filesystems should be mounted with mount options default,noatime,discard
+    mount /dev/nvme0n1 /var/lib/foundationdb
+    mkdir -p /var/lib/foundationdb/data
+    chown -R foundationdb:foundationdb /var/lib/foundationdb
+    ;;
+"i3.4xlarge")
+    mkdir -p /var/lib/foundationdb1
+    mkdir -p /var/lib/foundationdb2
+    echo SSD optimized
+    mkfs.ext4 -E nodiscard /dev/nvme0n1
+    mkfs.ext4 -E nodiscard /dev/nvme1n1
+    # ext4 filesystems should be mounted with mount options default,noatime,discard
+    mount /dev/nvme0n1 /var/lib/foundationdb1
+    mount /dev/nvme1n1 /var/lib/foundationdb2
+    mkdir -p /var/lib/foundationdb1/data
+    mkdir -p /var/lib/foundationdb2/data
+    chown -R foundationdb:foundationdb /var/lib/foundationdb1
+    chown -R foundationdb:foundationdb /var/lib/foundationdb2
+    ;;
+"m5d.4xlarge" )
+    mkdir -p /var/lib/foundationdb1
+    mkdir -p /var/lib/foundationdb2
+    echo SSD optimized
+    mkfs.ext4 -E nodiscard /dev/nvme1n1
+    mkfs.ext4 -E nodiscard /dev/nvme2n1
+    # ext4 filesystems should be mounted with mount options default,noatime,discard
+    mount /dev/nvme1n1 /var/lib/foundationdb1
+    mount /dev/nvme2n1 /var/lib/foundationdb2
+    mkdir -p /var/lib/foundationdb1/data
+    mkdir -p /var/lib/foundationdb2/data
+    chown -R foundationdb:foundationdb /var/lib/foundationdb1
+    chown -R foundationdb:foundationdb /var/lib/foundationdb2
     ;;
 esac
 

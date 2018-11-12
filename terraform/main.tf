@@ -23,6 +23,15 @@ data "aws_ami" "fdb" {
   owners = ["self"]
 }
 
+data "aws_ami" "influxdb" {
+  most_recent = true
+
+  filter {
+    name = "name"
+    values = ["poma-influxdb"]
+  }
+  owners = ["self"]
+}
 
 # Create a VPC to launch our instances into
 resource "aws_vpc" "default" {
@@ -85,6 +94,23 @@ resource "aws_security_group" "fdb_group" {
     protocol    = "tcp"
     cidr_blocks = ["10.0.0.0/16"]
   }
+
+  # InfluxDB port for client/server communication
+  ingress {
+    from_port   = 8086
+    to_port     = 8086
+    protocol    = "tcp"
+    cidr_blocks = ["10.0.0.0/16"]
+  }
+
+  # Grafrana port for web page
+  ingress {
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   # outbound internet access
   egress {
     from_port   = 0
@@ -101,11 +127,11 @@ resource "aws_key_pair" "auth" {
 
 # Random cluster identifier strings
 resource "random_string" "cluster_description" {
-  length = 8
+  length = 14
   special = false
 }
 resource "random_string" "cluster_id" {
-  length = 8
+  length = 14
   special = false
 }
 
@@ -170,6 +196,80 @@ resource "aws_instance" "fdb" {
     inline = [
       "sudo chmod +x /tmp/init.sh",
       "sudo /tmp/init.sh ${var.aws_fdb_size} ${self.private_ip} ${local.fdb_seed} '${local.fdb_cluster}' '${var.fdb_init_string}'",
+    ]
+  }
+}
+
+resource "aws_instance" "influxdb" {
+  # The connection block tells our provisioner how to
+  # communicate with the resource (instance)
+  connection {
+    # The default username for our AMI
+    user = "ubuntu"
+    agent = "false"
+
+    private_key = "${file(var.private_key_path)}"
+    # The connection will use the local SSH agent for authentication.
+  }
+
+
+  availability_zone = "${var.aws_availability_zone}"
+  instance_type = "${var.aws_influxdb_size}"
+  count = "${var.aws_influxdb_count}"
+  # Grab AMI id from the data source
+  ami = "${data.aws_ami.influxdb.id}"
+
+
+  private_ip = "${cidrhost(aws_subnet.db.cidr_block, 151)}"
+
+
+  # The name of our SSH keypair we created above.
+  key_name = "${aws_key_pair.auth.id}"
+
+  # Our Security group to allow HTTP and SSH access
+  vpc_security_group_ids = ["${aws_security_group.fdb_group.id}"]
+
+  # We're going to launch into the DB subnet
+  subnet_id = "${aws_subnet.db.id}"
+
+  tags {
+    Name = "fdb_influxdb"
+    Project = "TF:poma"
+  }
+
+  provisioner "local-exec" {
+    command = "python dashboard_generator.py ${var.aws_fdb_count} ${var.fdb_procs_per_machine}"
+  }
+
+  provisioner "file" {
+    source      = "init_influxdb.sh"
+    destination = "/tmp/init.sh"
+  }
+
+  provisioner "file" {
+    source      = "conf/telegraf.conf"
+    destination = "/tmp/telegraf.conf"
+  }
+
+  provisioner "file" {
+    source      = "status_converter.py"
+    destination = "/tmp/status_converter.py"
+  }
+
+  provisioner "file" {
+    source      = "conf/provisioning/dashboard_template.json"
+    destination = "/tmp/dashboard_template.json"
+  }
+
+  provisioner "file" {
+    source      = "conf/provisioning/dashboards.yaml"
+    destination = "/tmp/dashboards.yaml"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo chmod +x /tmp/init.sh",
+      "sudo /tmp/init.sh ${var.aws_fdb_size} ${self.private_ip} ${local.fdb_seed} '${local.fdb_cluster}' '${var.fdb_init_string}' '${var.aws_grafana_password}'",
     ]
   }
 }

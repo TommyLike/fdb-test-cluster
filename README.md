@@ -296,10 +296,10 @@ processes saturate the disk iops, and whether any role saturates its CPU core.
 
 # Monitoring performance with Grafana
 
-We provide another way to monitor the whole cluster by InfluxDB and Grafana,
-in order to use it, you need follow these instructions below:
+We also provide another way to monitor the whole cluster by InfluxDB and Grafana,
+in order to use this, you need to follow these instructions as below:
 
-Create InfluxD+Grafana+Telegraf AMI
+Create InfluxD+Grafana+Telegraf AMI:
 
 ```shell
 cd packer
@@ -324,9 +324,18 @@ variable "aws_grafana_password" {
   description = "Default password for admin user to login grafana"
 }
 ```
-when cluster is ready, you can login the grafana within 'admin' user and specified password.
 
-The Dashboard and Graph is configured in default, they are arranged below:
+Create the FDB cluster as before:
+
+```
+make plan
+make apply
+```
+
+when Grafana is deployed, it will use port `3000` in default,
+you can login Grafana with `admin` user and the specified password.
+
+There would be a `FoundationDB Cluster` Dashboard in default there and it's graphs are configured as below:
 ```$xslt
      +--------------------------------------------------+
      |              process cpu usage                   |
@@ -335,14 +344,14 @@ The Dashboard and Graph is configured in default, they are arranged below:
      +--------------------------------------------------+
      |  disk IOPS(read)       | disk IOPS(write)        |
      +--------------------------------------------------+
-     | Network IOPS(send Mib) |network IOPS(receive Mib)|
+     | network IOPS(send Mib) |network IOPS(receive Mib)|
      +--------------------------------------------------+
 ```
 There are two custom python scripts:
 1. ``dashboard_generator.py``: it's used to generate Grafana graph and it's assume the cluster process amount is `aws_fdb_count` * `fdb_procs_per_machine`
-and their port are start from `4500`, therefore the script should be updated if there are some changes in real cluster deployment.
+and their ports are start from `4500`, therefore the script should be updated if there are some changes in real cluster deployment.
 2. ``status_converter.py``: it's used to execute `fdbcli --exec "status json"` command and convert the output, You need to update this script as well if
-there some metrics that are difficult to use in Grafana.
+there some metrics that are difficult to be used in Grafana, for example, the memory usage percentage.
 
 
 # Destroying the cluster

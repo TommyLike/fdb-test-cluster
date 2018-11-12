@@ -294,6 +294,57 @@ Alternatively, you may want to feed the output of
 Most of the time you need to watch if any of your `log` or `storage` 
 processes saturate the disk iops, and whether any role saturates its CPU core.
 
+# Monitoring performance with Grafana
+
+We provide another way to monitor the whole cluster by InfluxDB and Grafana,
+in order to use it, you need follow these instructions below:
+
+Create InfluxD+Grafana+Telegraf AMI
+
+```shell
+cd packer
+make build_influxdb
+```
+
+Configure Grafana instance type and related options:
+
+```shell
+variable "aws_influxdb_size" {
+  default = "t2.medium"
+  description = "machine type to run Grafana server"
+}
+
+variable "aws_influxdb_count" {
+  default = 0
+  description = "Number of machine for Grafana server, this is limited to 0 or 1"
+}
+
+variable "aws_grafana_password" {
+  default = "password"
+  description = "Default password for admin user to login grafana"
+}
+```
+when cluster is ready, you can login the grafana within 'admin' user and specified password.
+
+The Dashboard and Graph is configured in default, they are arranged below:
+```$xslt
+     +--------------------------------------------------+
+     |              process cpu usage                   |
+     +--------------------------------------------------+
+     |  memory usage(absolute)| memory usage(percentage)|
+     +--------------------------------------------------+
+     |  disk IOPS(read)       | disk IOPS(write)        |
+     +--------------------------------------------------+
+     | Network IOPS(send Mib) |network IOPS(receive Mib)|
+     +--------------------------------------------------+
+```
+There are two custom python scripts:
+1. ``dashboard_generator.py``: it's used to generate Grafana graph and it's assume the cluster process amount is `aws_fdb_count` * `fdb_procs_per_machine`
+and their port are start from `4500`, therefore the script should be updated if there are some changes in real cluster deployment.
+2. ``status_converter.py``: it's used to execute `fdbcli --exec "status json"` command and convert the output, You need to update this script as well if
+there some metrics that are difficult to use in Grafana.
+
+
 # Destroying the cluster
 
 Keeping AWS instances running costs money. So generally it is advised
@@ -319,3 +370,4 @@ Do you really want to destroy?
 Destroy complete! Resources: 12 destroyed.
 
 ```
+

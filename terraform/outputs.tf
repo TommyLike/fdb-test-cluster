@@ -6,6 +6,10 @@ output "fdb_address" {
   value = "${aws_instance.fdb.*.public_dns}"
 }
 
+output "cluster_influxdb" {
+  value = "${aws_instance.influxdb.*.public_dns}"
+}
+
 output "fdb_cluster" {
   value = "${local.fdb_cluster}"
 }

@@ -1,4 +1,5 @@
 import sys
+import six
 import os
 import io
 import json
@@ -998,8 +999,8 @@ def generate_dashboard(instance_number, core_number):
     template_path = os.path.join(os.curdir, 'conf/provisioning/dashboard_template.json')
     with io.open(template_path, encoding="utf-8", mode="w") as f:
         result = generate_graph(int(instance_number), int(core_number))
-        content = json.dumps(result)
-        f.write(unicode(content))
+        content = json.dumps(result, indent=4)
+        f.write(six.text_type(content))
         exit(0)
 
 
